@@ -140,6 +140,27 @@ var transferPlaylist = function(item) {
 	});
 }
 
+var gcreatePlaylist = function(plname, pllist) {
+    googleMusic.init(googleAuth, function() {
+        console.log("initiated gmusic");
+        googleMusic.addPlaylist(plname, function(playlist) {
+            console.log("created playlist "+ plname +" on google music");
+            io.sockets.emit('gmusic', { type: 'playlist', data: { pl: playlist, name: plname }});
+
+            var thegplsplit = pllist.split(/\r\n|\r|\n/g);
+            //var thegplsplit = pllist.split('\n');
+            for (var igl=0;igl<thegplsplit.length;igl++) {
+                gaddtoPL(thegplsplit[igl], playlist);
+            }
+
+        });
+    });
+}
+
+function gaddtoPL(track, playlist, callback) {
+    searchQueue.push(track, playlist);
+}
+
 var trackQueue = new TimeQueue(trackWorker, { concurrency: 5, every: 1000 });
 
 function trackWorker(track, gmPlaylist, callback) {
@@ -150,7 +171,7 @@ function trackWorker(track, gmPlaylist, callback) {
 var searchQueue = new TimeQueue(searchWorker, { concurrency: 5, every: 1000 });
 
 function searchWorker(track, playlist, callback) {
-	googleMusic.search2(track.artist[0].name+" - "+track.name,
+	googleMusic.search2(track,
 		function(res) {
 			callback();
 			processGmSearchResult(track, playlist, res);
@@ -281,6 +302,17 @@ router.post('/spotify/login', function(request, response, next){
 	spotifySession = spotify;
 	response.send({ status: 200, message: "login successful." });
   });
+});
+
+router.post('/rdio/playlist/start', function(request, response, next){
+  var plpost = JSON.parse(request[postField]);
+
+    if(!googleAuth) {
+        response.send({ status: 401, message: "Google: not logged in." });
+    }
+
+    gcreatePlaylist(plpost[0], plpost[1]);
+    response.send({ status: 200, message: "playlist creation successful." });
 });
 
 router.post('/portify/transfer/start', function(request, response, next){

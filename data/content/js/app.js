@@ -46,6 +46,30 @@ angular.module('portify', []).
 			});
 	};
 
+    portifyService.startr2gTransfer = function(thelist) {
+        $http({
+            url: "/rdio/playlist/start",
+            dataType: "json",
+            method: "POST",
+            data: thelist,
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
+            }
+        }).success(function(response){
+                if(response.status == 200) {
+                    console.log("initated transfer...");
+                } else {
+                    if(response.status == 401)
+                        $location.path( "/google/login" );
+                    else
+                        $location.path( "/" );
+
+                }
+            }).error(function(error){
+                console.log(error);
+            });
+    };
+
     return portifyService;
   }).
 	factory('context', function($rootScope, $http, $q) {
@@ -97,10 +121,8 @@ angular.module('portify', []).
 		  when('/', {templateUrl: '/partials/welcome.html', controller: WelcomeCtrl}).
 		  when('/about', {templateUrl: '/partials/about.html', controller: AboutCtrl}).
 	      when('/google/login', {templateUrl: '/partials/google_login.html', controller: GoogleLoginCtrl}).
-		  when('/spotify/login', {templateUrl: '/partials/spotify_login.html', controller: SpotifyLoginCtrl}).
-		  when('/spotify/playlists/select', {templateUrl: '/partials/playlists.html', controller: SelectSpotifyCtrl}).
-		  when('/transfer/process_fancy', {templateUrl: '/partials/fancy_process.html', controller: FancyProcessTransferCtrl}).
-		  when('/transfer/process', {templateUrl: '/partials/process.html', controller: ProcessTransferCtrl}).
+          when('/rdio/playlist', {templateUrl: '/partials/rdio_list.html', controller: RdioPlaylistCtrl}).
+          when('/rdio/done', {templateUrl: '/partials/rdio_done.html', controller: RdioDoneCtrl}).
 	      otherwise({redirectTo: '/'});
   }).
 	directive('scrollGlue', function() {

@@ -161,7 +161,7 @@ function GoogleLoginCtrl($scope, $rootScope, $http, $location) {
 			}
 		}).success(function(response){
 			if(response.status == 200) {
-				$location.path( "/spotify/login" );
+				$location.path( "/rdio/playlist" );
 			} else {
 				alert("Login failed.");
 			}
@@ -193,6 +193,78 @@ function SpotifyLoginCtrl($scope, $rootScope, $http, $location) {
 			$scope.error = error;
 		});
 	};
+}
+
+function RdioDoneCtrl($scope, $rootScope, $http, $location, socket, context, portifyService, $timeout) {
+    $rootScope.step = 4;
+    $rootScope.link = '';
+    $scope.playlistd = context.items();
+    $scope.playlistname = $scope.playlistd[0];
+    //alert($scope.playlist);
+
+    $scope.alldone = false;
+    $scope.processing = false;
+
+    $scope.notfound = [];
+    $scope.shownotfound = false;
+
+    $scope.currentPlaylist = {
+        name: "",
+        processed: 0,
+        found: 0,
+        notfound: 0,
+        karaoke: 0,
+        count: 0,
+        progress: 0,
+    };
+
+    $timeout(function() {
+        portifyService.startr2gTransfer($scope.playlistd);
+    }, 600);
+
+    $scope.hideMissing = function() {
+        $scope.shownotfound = false;
+    };
+
+    $scope.showMissing = function() {
+        $scope.shownotfound = true;
+    };
+
+    $scope.playlist = $scope.playlistname;
+    $scope.alldone = true;
+
+    socket.on('gmusic', function (data) {
+        if(data.type == "added") {
+            $scope.currentPlaylist.processed++;
+            $scope.currentPlaylist.found++;
+        } else if(data.type == "not_added") {
+            $scope.notfound.push(data.data.track);
+            $scope.currentPlaylist.processed++;
+            $scope.currentPlaylist.notfound++;
+            if(data.data.karaoke) {
+                $scope.currentPlaylist.karaoke++;
+            }
+        }
+        if($scope.currentPlaylist.count == 0)
+            $scope.currentPlaylist.progress = "0%";
+        else
+            $scope.currentPlaylist.progress = (($scope.currentPlaylist.processed / $scope.currentPlaylist.count)*100) +"%";
+    });
+
+}
+
+function RdioPlaylistCtrl($scope, $rootScope, $http, $location, context) {
+    $rootScope.step = 3;
+    $rootScope.link = '';
+
+    //Here we are just forwarding the title and list
+    //to the done page
+    $scope.rdioPlaylist = function() {
+        context.clear();
+        context.addItem($scope.playlistData.title);
+        context.addItem($scope.playlistData.list);
+        $location.path( "/rdio/done" );
+    };
 }
 
 function SelectSpotifyCtrl($scope, $rootScope, $http, $location, portifyService, context) {
