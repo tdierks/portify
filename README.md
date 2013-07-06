@@ -1,6 +1,8 @@
 portify for Rdio
 =======
 
+This branch permits you to import Rdio playlists into Google Play Music All Access.
+
 This is a modification to [portify](https://github.com/mauimauer/portify) which is detailed below. Usage of this modded version can be [found here](http://srccd.com/posts/transfer-your-rdio-playlists-to-google-play-music-all-access#showhow).
 
 This actually will work with any service as long as you can export your playlist in the format of (1 per line):
