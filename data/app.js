@@ -143,7 +143,7 @@ var transferPlaylist = function(item) {
 var gcreatePlaylist = function(plname, pllist) {
     googleMusic.init(googleAuth, function() {
         console.log("initiated gmusic");
-        googleMusic.addPlaylist(plname, function(playlist) {
+        googleMusic.createPlaylist(plname, null, false, function(playlist) {
             console.log("created playlist "+ plname +" on google music");
             io.sockets.emit('gmusic', { type: 'playlist', data: { pl: playlist, name: plname }});
 
