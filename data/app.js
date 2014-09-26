@@ -33,7 +33,6 @@ if (typeof Proxy !== 'object' || typeof WeakMap !== 'function') {
 			next();
 		});
 	});
-	app.use(app.router);
 
 	server.listen(3132);
 	io = io.listen(server);
